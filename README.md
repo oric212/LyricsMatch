@@ -40,7 +40,7 @@ No accounts, no ads, and it never draws on top of other apps.
 ## Installing on Android
 
 1. Grab `LyricsMatch.apk` from the [Releases](../../releases) page on your phone and open it. Android will ask you to allow installing from your browser or file manager. Play Protect may warn you because it's not from the Play Store; tap **More details > Install anyway**.
-2. In Spotify, open **Settings** and turn on **Device broadcast status**. This lets Spotify tell other apps what's playing, and it's how LyricsMatch knows the song. You only do this once.
+2. In Spotify, tap your profile picture (top left) > **Settings and privacy** > **Playback**, scroll down and turn on **Device broadcast status**. (It's not in Spotify Lite.) This lets Spotify tell other apps what's playing, and it's how LyricsMatch knows the song. You only do this once.
 3. Open LyricsMatch and play something. If a song was already playing when you opened the app, pause and play once so Spotify announces it.
 
 The app doesn't need notification access or any other special permission to work, so Play Protect shouldn't block the install.
@@ -85,7 +85,7 @@ The text scales with the window. Needs Windows 10 (2004) or Windows 11.
 - **Lyrics are ahead of the singer:** tap **Later** (each tap is 0.25 s). Behind? Tap **Earlier**.
 - **"No lyrics for this song":** the song just isn't in the lyrics database yet. The next song loads by itself, and if you were offline it retries on its own.
 - **Only plain text, no highlighting:** that song has lyrics but no timing yet.
-- **Nothing happens when music plays (Android):** make sure **Device broadcast status** is on in Spotify's settings, then pause and play once.
+- **Nothing happens when music plays (Android):** make sure **Device broadcast status** is on in Spotify (profile picture > Settings and privacy > Playback), then pause and play once.
 
 ## Privacy
 

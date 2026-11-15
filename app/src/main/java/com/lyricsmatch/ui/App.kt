@@ -296,8 +296,8 @@ private fun LyricsBody(state: KaraokeState, large: Boolean, levels: LiveLevels? 
             LyricsStatus.Idle -> Message(
                 "Play a song in Spotify",
                 large,
-                "First time? In Spotify, open Settings and turn on \"Device broadcast status\". " +
-                    "That's how LyricsMatch sees what's playing.\n\n" +
+                "First time? In Spotify, tap your profile picture > Settings and privacy > Playback, " +
+                    "and turn on \"Device broadcast status\". That's how LyricsMatch sees what's playing.\n\n" +
                     "Already playing? Pause and play once so Spotify announces the song.",
             )
             LyricsStatus.Loading -> Message("Finding lyrics…", large)
