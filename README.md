@@ -1,155 +1,141 @@
 <div align="center">
 
-<img src="docs/icon.png" width="112" alt="LyricsMatch icon" />
+<img src="docs/icon.png" width="96" alt="LyricsMatch icon" />
 
 # LyricsMatch
 
-**Live, line-by-line lyrics for whatever you're playing, built for singing in the car.**
-
-For **Android** (with Android Auto) and **Windows**. Works with Spotify, YouTube Music, Apple Music, Deezer, Tidal and other music apps.
+Live, line-by-line lyrics for whatever you're playing. Android (with Android Auto) and Windows.
 
 </div>
 
 <p align="center">
-  <img src="docs/screenshots/phone.png" width="240" alt="Lyrics on the phone" />
+  <img src="docs/screenshots/phone.png" width="230" alt="Synced lyrics on the phone" />
   &nbsp;
-  <img src="docs/screenshots/car-view.png" width="240" alt="Car view" />
+  <img src="docs/screenshots/hebrew.png" width="230" alt="A Hebrew song, laid out right to left" />
   &nbsp;
-  <img src="docs/screenshots/windows.png" width="300" alt="LyricsMatch on Windows" />
+  <img src="docs/screenshots/car-view.png" width="230" alt="Car view" />
 </p>
 
----
+## Why I made this
 
-## ✨ What it does
+I wanted to do karaoke in the car. Spotify has synced lyrics, but they're buried in the app and not really made to be read from a phone mount. So I built a small app that listens for whatever song is playing, finds the timed lyrics and highlights each line as it's sung, with a big-text mode for the car.
 
-- 🎵 **Detects the current song automatically.** Press play in your music app and the lyrics show up. You don't need to search or log in.
-- 🎨 **Matches the music:** shows the album art (if your player has none, it finds the cover online) and tints the background to the cover's color.
-- 🇮🇱 **Hebrew and Arabic support:** right-to-left songs are laid out right-to-left automatically.
-- 📊 **Equalizer progress bar:** the song's progress bar is a row of bars that move with the music. Tap anywhere on it to jump to that point.
-- 📜 **Plain lyrics as a fallback:** for songs without timed lyrics, the full text scrolls along with the song.
-- 🎶 **No lyrics? Still something to watch:** the album art, the song info and a live spectrum of the music.
-- ⏱️ **Highlights each line as it's sung**, karaoke style, and scrolls along with the music.
-- 🚗 **Switches to Car view by itself** when your phone connects to Android Auto: big, high-contrast text with only the current line and the next two.
-- 📺 **Can also show lyrics on the car's display** (optional, see below).
-- 👆 **Tap any line** to jump the song to that spot.
-- 🎚️ **Fix the timing with one tap** if the lyrics are a little early or late.
-- 💾 **Saves lyrics you've already played**, so replays load instantly, even with a weak signal.
-- 🧘 **Keeps things simple:** no accounts, no ads, no pop-ups on top of other apps.
+It works with Spotify, YouTube Music, Apple Music, Deezer, Tidal and basically any app that shows up in your media controls.
 
-## 📲 Install on Android
+## What it does
 
-1. Download the latest `LyricsMatch.apk` from the [**Releases**](../../releases) page on your phone.
-2. Open it and allow installing from your browser or file manager when Android asks.
-3. Open **LyricsMatch** and tap **Allow access**. On the next screen, switch LyricsMatch **on**.
+- Picks up the current song automatically. No searching, no login.
+- Highlights the line being sung and scrolls along with the song. Tap a line to jump there.
+- Switches to a big, high-contrast **Car view** on its own when the phone connects to Android Auto.
+- Can also show the lyrics on the car's own display (optional, see below).
+- Shows the album art and tints the background to match it. If the player doesn't give a cover, it looks one up online.
+- The progress bar is a row of equalizer bars that move with the music. Tap it to seek.
+- Hebrew (and other right-to-left) songs are laid out right to left.
+- If a song only has plain lyrics, it shows the full text and scrolls it with the song. If there are no lyrics at all, you get the album art, the song info and the bars.
+- **Later / Earlier** buttons if the timing is a bit off.
+- Remembers lyrics it already found, so replays load instantly even with bad signal.
 
-> **Is the switch greyed out?** Android blocks this setting for apps installed outside the Play Store until you unlock it:
-> **Settings › Apps › LyricsMatch › ⋮ (top right) › Allow restricted settings**, then try again.
+No accounts, no ads, and it never draws on top of other apps.
 
-That's it. Play a song and sing along. 🎤
+## Installing on Android
 
-> **Optional: equalizer that follows the music.** LyricsMatch may offer *"Make the bar react to the music?"*. If you tap **Allow**, Android asks for audio access so the bars can follow the real sound. Sound is analyzed on your phone only and is never recorded or sent anywhere. If you skip it, the bars use a beat-style animation instead. Some phones don't share audio from certain apps; the beat-style animation is used then too.
+1. Grab `LyricsMatch.apk` from the [Releases](../../releases) page on your phone and open it. Android will ask you to allow installing from your browser or file manager.
+2. Open LyricsMatch, tap **Allow access**, and switch LyricsMatch on in the screen that opens.
 
-## 🚗 Using it in the car
+That's it, play something.
 
-LyricsMatch runs on your **phone**. You don't install anything on the car's screen or head unit.
+If the switch in step 2 is greyed out, that's Android blocking the setting for apps that aren't from the Play Store. Go to **Settings > Apps > LyricsMatch > ⋮ (top right) > Allow restricted settings** and try again.
 
-### Option A: lyrics on your phone (simplest)
+**About the equalizer bar on Android:** the app will offer to make the bar react to the music. That needs audio access, which is why Android shows a "record audio" prompt. The sound is only analyzed on the phone and never recorded or sent anywhere. If you skip it (or your phone doesn't share audio from that app), the bars just do a beat-style animation instead.
 
-1. Put your phone in a holder that's easy to see.
-2. Connect to Android Auto as usual and open LyricsMatch on the phone.
-3. It switches to **Car view** automatically, with large text and the screen kept on while music plays.
+## Using it in the car
 
-You can try Car view at home too: tap **Car view** at the top of the screen.
+Everything runs on the phone. Nothing gets installed on the car.
 
-### Option B: lyrics on the car's display
+**Lyrics on the phone (easiest):** put the phone in a mount, connect to Android Auto like you normally do, and open LyricsMatch. It switches to Car view by itself and keeps the screen on while music is playing. You can try Car view at home with the button at the top.
 
-The car display only shows apps that Android Auto trusts. Because LyricsMatch isn't from the Play Store, you need to allow it once:
+**Lyrics on the car's screen:** Android Auto only shows apps it trusts, and this one isn't from the Play Store, so you have to allow it once:
 
-1. On your phone, open **Settings › Connected devices › Connection preferences › Android Auto**.
-2. Scroll to the bottom and tap **Version** about 10 times until you're asked to enable developer settings. Accept.
-3. Open the **⋮ menu › Developer settings** and turn on **Unknown sources**.
-4. Reconnect to your car. **LyricsMatch** now shows up in the Android Auto app launcher.
+1. On the phone, go to **Settings > Connected devices > Connection preferences > Android Auto**.
+2. Scroll down and tap **Version** about 10 times until it offers developer settings, and accept.
+3. In the **⋮ menu > Developer settings**, turn on **Unknown sources**.
+4. Reconnect to the car. LyricsMatch shows up in the Android Auto launcher.
 
-On the car display, lyrics use Android Auto's own templates. The car decides how much text it shows while you're moving, which keeps it within the driving safety rules.
+On the car screen it uses Android Auto's own templates, so the car decides how much text to show while you're driving.
 
-## 💻 On Windows
+Please don't actually read lyrics while driving. Car view is meant for passengers and quick glances.
 
-1. Download `LyricsMatch-Windows.exe` from the [**Releases**](../../releases) page. There's no installer, so you can put it anywhere and double-click it.
-2. Windows may show *"Windows protected your PC"* because the app isn't signed. Click **More info › Run anyway**.
-3. Play something in Spotify (desktop app or web player) or any other music app. The lyrics follow along automatically.
+## Windows
 
-| Shortcut | What it does |
-| --- | --- |
-| **F11** | Full screen: big lyrics for karaoke on a TV or second screen |
-| **← / →** | Make lyrics later / earlier |
-| **Click a line** or **the equalizer bar** | Jump to that part of the song (if your music app allows it) |
+<p align="center">
+  <img src="docs/screenshots/windows.png" width="420" alt="LyricsMatch on Windows" />
+</p>
 
-The text gets bigger as you make the window bigger. The equalizer bar follows whatever your PC is playing; the audio is only analyzed on your PC and never recorded. Requires Windows 10 (version 2004) or Windows 11.
+Download `LyricsMatch-Windows.exe` from [Releases](../../releases) and run it. There's no installer. Windows might say "Windows protected your PC" because the exe isn't signed; click **More info > Run anyway**.
 
-## 🎚️ Tips
+Then play something in Spotify (desktop or web) or any other player and the lyrics follow along. The equalizer bar reacts to whatever your PC is playing (analyzed locally, nothing is recorded).
 
-| If… | Do this |
-| --- | --- |
-| Lyrics are **ahead** of the singer | Tap **Later** at the bottom (each tap is 0.25 s) |
-| Lyrics are **behind** the singer | Tap **Earlier** |
-| It says *"No lyrics for this song yet"* | That song isn't in the lyrics library yet. Just keep listening: the next song loads by itself. If you were offline, it retries automatically |
-| Only the full text shows, with no highlighting | That song has no timed lyrics yet, so the plain text is shown instead |
-| Nothing happens when music plays (Android) | Check that notification access is still on (step 3 of Install) |
+- **F11**: full screen, good for a TV or a second monitor
+- **Left / Right arrows**: lyrics later / earlier
+- **Click a line or the bar**: jump to that point in the song (if your player supports it)
 
-## 🔒 Privacy
+The text scales with the window. Needs Windows 10 (2004) or Windows 11.
 
-- On Android, LyricsMatch asks for **notification access** only because Android requires it before an app can see which song is playing. It **never reads your notifications**.
-- The only data sent anywhere is the **song title, artist, album and length**, sent to [LRCLIB](https://lrclib.net) (and to [lyrics.ovh](https://lyrics.ovh) if LRCLIB has nothing) to look up lyrics.
-- Album art comes from your music app. Only when it has none is the cover looked up on [iTunes](https://www.apple.com/itunes/) (artist and title only).
-- The equalizer analyzes sound on your device only (on Android, only if you opt in). Audio is never recorded, saved or sent.
-- There are no accounts, analytics or ads.
+## If something's off
 
-## 🙏 Credits
+- **Lyrics are ahead of the singer:** tap **Later** (each tap is 0.25 s). Behind? Tap **Earlier**.
+- **"No lyrics for this song":** the song just isn't in the lyrics database yet. The next song loads by itself, and if you were offline it retries on its own.
+- **Only plain text, no highlighting:** that song has lyrics but no timing yet.
+- **Nothing happens when music plays (Android):** check that notification access is still on.
 
-Synced lyrics come from **[LRCLIB](https://lrclib.net)**, a free, community-built lyrics library. If a song is missing or out of sync, you can contribute it there. When LRCLIB doesn't have a song, plain lyrics come from **[lyrics.ovh](https://lyrics.ovh)**.
+## Privacy
 
-## ⚠️ Drive safely
+- Android only lets an app see what's playing if it has notification access, which is why the app asks for it. It never reads your notifications.
+- To find lyrics, the song's title, artist, album and length are sent to [LRCLIB](https://lrclib.net), and to [lyrics.ovh](https://lyrics.ovh) if LRCLIB doesn't have it.
+- If your player doesn't provide album art, the artist and title are sent to the [iTunes](https://www.apple.com/itunes/) search API to find the cover.
+- Audio for the equalizer is analyzed on the device and never recorded, saved or sent.
+- No accounts, no analytics.
 
-Keep your eyes on the road. LyricsMatch is meant for **passengers and quick glances**. Car view and the Android Auto display are kept minimal for that reason.
+## Credits
 
----
+Synced lyrics come from [LRCLIB](https://lrclib.net), a free, community-run lyrics database. If a song is missing or out of sync, you can add or fix it there. Plain-text fallback lyrics come from [lyrics.ovh](https://lyrics.ovh).
 
-<details>
-<summary><b>🛠️ For developers</b></summary>
+## Building it yourself
 
-### Build (Android)
-
-Requirements: JDK 17 and the Android SDK (platform 35). Android Studio includes both.
+**Android:** you need JDK 17 and the Android SDK (platform 35); Android Studio comes with both.
 
 ```bash
 ./gradlew assembleDebug        # app/build/outputs/apk/debug/app-debug.apk
 ./gradlew testDebugUnitTest    # unit tests
 ```
 
-### How it works
-
-| Piece | File |
-| --- | --- |
-| Watches the active media session (any music app) | `media/MediaListenerService.kt` |
-| Finds and caches synced lyrics from LRCLIB | `lyrics/LyricsRepository.kt` |
-| Parses LRC and finds the current line | `lyrics/LrcParser.kt` |
-| Shared state for phone and car (song, lyrics, current line) | `lyrics/Karaoke.kt` |
-| Phone UI and automatic Car view (Jetpack Compose) | `ui/App.kt` |
-| Optional Android Auto display (Car App Library templates) | `car/LyricsScreen.kt` |
-
-Car view turns on automatically through `CarConnection` when the phone is projecting to Android Auto. The car-display screen keeps the template's title and row count fixed, so each line change counts as a *refresh* and stays within Android Auto's template limits.
-
-### Windows app
-
-C# / WPF on .NET 10, in [`windows/`](windows). It reads the song from Windows' system media sessions (the same source as the volume pop-up) and uses the same LRCLIB lookup and LRC parsing as the Android app.
+**Windows:** C# / WPF on .NET 10, in [`windows/`](windows).
 
 ```bash
 cd windows/LyricsMatch.Windows
-dotnet run                                   # run it
+dotnet run
 dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ../publish
 ```
 
-### Demo without a music app (Android debug builds)
+<details>
+<summary>How it's put together</summary>
+
+On Android, a notification listener service watches the active media session (that's how it sees any music app). Lyrics come from LRCLIB and get cached, the LRC parser works out the current line, and one shared state feeds both the phone UI (Jetpack Compose) and the optional Android Auto screen (Car App Library templates). Car view turns on through `CarConnection` when the phone is projecting.
+
+| What | Where |
+| --- | --- |
+| Watching the current song | `app/.../media/MediaListenerService.kt` |
+| Finding and caching lyrics | `app/.../lyrics/LyricsRepository.kt` |
+| Parsing LRC / current line | `app/.../lyrics/LrcParser.kt` |
+| Shared state (song, lyrics, line) | `app/.../lyrics/Karaoke.kt` |
+| Phone UI and Car view | `app/.../ui/App.kt` |
+| Android Auto screen | `app/.../car/LyricsScreen.kt` |
+
+The Android Auto screen keeps the template's title and row count the same between updates, so each line change counts as a refresh and stays inside Android Auto's template limits.
+
+On Windows, the app reads the song from the system media sessions (the same thing the volume flyout uses) and does the same LRCLIB lookup and LRC parsing.
+
+To test on Android without a music app, debug builds include a fake player:
 
 ```bash
 adb shell cmd notification allow_listener com.lyricsmatch/com.lyricsmatch.media.MediaListenerService

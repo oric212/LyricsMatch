@@ -52,11 +52,16 @@ object MediaRepository {
         if (fetchingKey == np.trackKey) return
         fetchingKey = np.trackKey
         io.launch {
-            delay(1_500) // players sometimes send the art a moment after the title
-            if (_nowPlaying.value?.trackKey != np.trackKey || _artwork.value?.trackKey == np.trackKey) return@launch
-            val bmp = ArtworkFinder.find(np.artist, np.title) ?: return@launch
-            if (_nowPlaying.value?.trackKey == np.trackKey && _artwork.value == null) {
-                _artwork.value = Artwork(np.trackKey, bmp, tintOf(bmp))
+            try {
+                delay(1_500) // players sometimes send the art a moment after the title
+                if (_nowPlaying.value?.trackKey != np.trackKey || _artwork.value?.trackKey == np.trackKey) return@launch
+                val bmp = ArtworkFinder.find(np.artist, np.title) ?: return@launch
+                if (_nowPlaying.value?.trackKey == np.trackKey && _artwork.value == null) {
+                    _artwork.value = Artwork(np.trackKey, bmp, tintOf(bmp))
+                }
+            } finally {
+                // Allow a fresh lookup if the same song comes back later (results are cached).
+                if (fetchingKey == np.trackKey) fetchingKey = null
             }
         }
     }
