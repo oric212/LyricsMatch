@@ -120,6 +120,7 @@ object BroadcastSource {
                 positionMs = positionMs,
                 updateTime = updateTime,
                 speed = 1f,
+                spotifyId = if (pkg == SPOTIFY) id.substringAfterLast(':').takeIf { it.length == 22 } else null,
             )
         )
     }

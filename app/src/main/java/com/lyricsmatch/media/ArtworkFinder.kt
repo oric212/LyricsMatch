@@ -8,14 +8,38 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Finds album art when the music app doesn't provide any, using the free iTunes Search API.
- * Only the artist and title are sent. Mirrors the Windows logic.
+ * Finds album art when the music app doesn't provide any: first Spotify's public oEmbed
+ * endpoint (exact cover, needs only the track ID from Spotify's broadcast), then the free
+ * iTunes Search API (artist and title only).
  */
 object ArtworkFinder {
     private val cache = HashMap<String, Bitmap?>()
 
     /** Blocking; call from a background thread. */
-    fun find(artistIn: String, titleIn: String): Bitmap? {
+    fun find(artistIn: String, titleIn: String, spotifyId: String? = null): Bitmap? {
+        spotifyId?.let { id -> spotifyCover(id)?.let { return it } }
+        return itunes(artistIn, titleIn)
+    }
+
+    /** The track's cover from Spotify's public oEmbed endpoint (no login needed). */
+    private fun spotifyCover(id: String): Bitmap? {
+        val key = "spotify:$id"
+        synchronized(cache) { if (cache.containsKey(key)) return cache[key] }
+        val result = try {
+            get("https://open.spotify.com/oembed?url=${Uri.encode("https://open.spotify.com/track/$id")}")
+                ?.let(::JSONObject)
+                ?.optString("thumbnail_url")
+                ?.takeIf { it.startsWith("https://") }
+                // 300px thumbnail id -> 640px version of the same image.
+                ?.let { download(it.replace("ab67616d00001e02", "ab67616d0000b273")) ?: download(it) }
+        } catch (_: Exception) {
+            null
+        }
+        synchronized(cache) { cache[key] = result }
+        return result
+    }
+
+    private fun itunes(artistIn: String, titleIn: String): Bitmap? {
         var artist = artistIn
         var title = titleIn
         // Local files often put everything in the title: "Artist - Song".

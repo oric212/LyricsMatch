@@ -45,7 +45,7 @@ object MediaRepository {
             try {
                 delay(1_500) // players sometimes send the art a moment after the title
                 if (_nowPlaying.value?.trackKey != np.trackKey || _artwork.value?.trackKey == np.trackKey) return@launch
-                val bmp = ArtworkFinder.find(np.artist, np.title) ?: return@launch
+                val bmp = ArtworkFinder.find(np.artist, np.title, np.spotifyId) ?: return@launch
                 if (_nowPlaying.value?.trackKey == np.trackKey && _artwork.value == null) {
                     _artwork.value = Artwork(np.trackKey, bmp, tintOf(bmp))
                 }

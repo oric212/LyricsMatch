@@ -15,6 +15,8 @@ data class NowPlaying(
     /** [SystemClock.elapsedRealtime] of the position report. */
     val updateTime: Long,
     val speed: Float,
+    /** Spotify track ID when known (from Spotify's broadcast); used to fetch the exact cover. */
+    val spotifyId: String? = null,
 ) {
     /** Identifies the song, independent of playback progress. */
     val trackKey: String get() = "$artist\u0000$title"

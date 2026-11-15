@@ -91,7 +91,7 @@ The text scales with the window. Needs Windows 10 (2004) or Windows 11.
 
 - On Android the app gets the song from Spotify's "Device broadcast status" announcements, so it needs no notification or accessibility access.
 - To find lyrics, the song's title, artist, album and length are sent to [LRCLIB](https://lrclib.net), and to [lyrics.ovh](https://lyrics.ovh) if LRCLIB doesn't have it.
-- If your player doesn't provide album art, the artist and title are sent to the [iTunes](https://www.apple.com/itunes/) search API to find the cover.
+- If your player doesn't provide album art (Spotify's broadcasts on Android don't), the app gets the cover from Spotify's public oEmbed link using the song's Spotify ID, or otherwise from the [iTunes](https://www.apple.com/itunes/) search API using the artist and title.
 - Audio for the equalizer is analyzed on the device and never recorded, saved or sent.
 - No accounts, no analytics.
 
