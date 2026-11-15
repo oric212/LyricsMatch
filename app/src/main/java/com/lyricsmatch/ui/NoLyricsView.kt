@@ -3,8 +3,6 @@ package com.lyricsmatch.ui
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -57,7 +55,6 @@ fun NoLyricsView(
     artwork: Artwork?,
     track: NowPlaying?,
     caption: String,
-    onSeek: (Long) -> Unit,
 ) {
     val art = remember(artwork) { artwork?.bitmap?.asImageBitmap() }
     var showCaption by remember(track?.trackKey) { mutableStateOf(true) }
@@ -114,23 +111,18 @@ fun NoLyricsView(
         }
         Spacer(Modifier.height(32.dp))
         if (track != null) {
-            MirrorSpectrum(levels, track, onSeek, Modifier.fillMaxWidth().height(96.dp))
+            MirrorSpectrum(levels, track, Modifier.fillMaxWidth().height(96.dp))
         }
     }
 }
 
 /**
  * The no-lyrics screen's main bar: grows up and down from a centre line (bass in the middle,
- * treble towards the edges), bright before the playhead and dim after it. Tap to seek.
+ * treble towards the edges), bright before the playhead and dim after it.
  */
 @Composable
-private fun MirrorSpectrum(levels: LiveLevels, track: NowPlaying, onSeek: (Long) -> Unit, modifier: Modifier) {
-    Canvas(
-        modifier.pointerInput(track) {
-            detectTapGestures { pos ->
-                if (track.durationMs > 0 && size.width > 0) onSeek((pos.x / size.width * track.durationMs).toLong())
-            }
-        }
+private fun MirrorSpectrum(levels: LiveLevels, track: NowPlaying, modifier: Modifier) {
+    Canvas(modifier
     ) {
         levels.frame // redraw every frame
         val w = size.width

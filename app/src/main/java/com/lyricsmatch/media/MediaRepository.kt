@@ -2,10 +2,6 @@ package com.lyricsmatch.media
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.media.MediaMetadata
-import android.media.session.MediaController
-import android.media.session.PlaybackState
-import android.os.SystemClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,10 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Album art supplied by the music app, plus a background tint picked from it. */
+/** Album art for the current song (looked up online), plus a background tint picked from it. */
 class Artwork(val trackKey: String, val bitmap: Bitmap, val tint: Int)
 
-/** Holds the currently selected media session; fed by [MediaListenerService]. */
+/** Holds the song that's playing; fed by [BroadcastSource]. */
 object MediaRepository {
     private val _nowPlaying = MutableStateFlow<NowPlaying?>(null)
     val nowPlaying: StateFlow<NowPlaying?> = _nowPlaying.asStateFlow()
@@ -26,20 +22,14 @@ object MediaRepository {
     private val _artwork = MutableStateFlow<Artwork?>(null)
     val artwork: StateFlow<Artwork?> = _artwork.asStateFlow()
 
-    @Volatile
-    private var controller: MediaController? = null
-
-    fun update(c: MediaController?) {
-        controller = c
-        val np = c?.let(::snapshot)
+    /** Song info from a player's public broadcast (Spotify's "Device broadcast status"). */
+    fun updateFromBroadcast(np: NowPlaying?) {
         _nowPlaying.value = np
         when {
             np == null -> _artwork.value = null
-            // New song, or art that arrived after the title: (re)read it.
             _artwork.value?.trackKey != np.trackKey -> {
-                val bmp = artOf(c.metadata)?.takeUnless(ArtworkFinder::isPlaceholder)
-                _artwork.value = bmp?.let { Artwork(np.trackKey, it, tintOf(it)) }
-                if (bmp == null) fetchArtwork(np)
+                _artwork.value = null
+                fetchArtwork(np) // broadcasts carry no album art
             }
         }
     }
@@ -64,39 +54,6 @@ object MediaRepository {
                 if (fetchingKey == np.trackKey) fetchingKey = null
             }
         }
-    }
-
-    fun seekTo(positionMs: Long) {
-        controller?.transportControls?.seekTo(positionMs.coerceAtLeast(0))
-    }
-
-    private fun snapshot(c: MediaController): NowPlaying? {
-        val meta = c.metadata ?: return null
-        val title = meta.getString(MediaMetadata.METADATA_KEY_TITLE)
-            ?: meta.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
-        if (title.isNullOrBlank()) return null
-        val artist = meta.getString(MediaMetadata.METADATA_KEY_ARTIST)
-            ?: meta.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
-            ?: meta.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE)
-            ?: ""
-        val state = c.playbackState
-        return NowPlaying(
-            packageName = c.packageName,
-            title = title,
-            artist = artist,
-            album = meta.getString(MediaMetadata.METADATA_KEY_ALBUM),
-            durationMs = meta.getLong(MediaMetadata.METADATA_KEY_DURATION),
-            isPlaying = state?.state == PlaybackState.STATE_PLAYING,
-            positionMs = state?.position ?: 0L,
-            updateTime = state?.lastPositionUpdateTime?.takeIf { it > 0 } ?: SystemClock.elapsedRealtime(),
-            speed = state?.playbackSpeed?.takeIf { it > 0f } ?: 1f,
-        )
-    }
-
-    private fun artOf(meta: MediaMetadata?): Bitmap? = meta?.let {
-        it.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
-            ?: it.getBitmap(MediaMetadata.METADATA_KEY_ART)
-            ?: it.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON)
     }
 
     /** Saturation-weighted average colour, pushed to a dark, rich shade that keeps white text readable. */

@@ -20,16 +20,16 @@ Live, line-by-line lyrics for whatever you're playing. Android (with Android Aut
 
 I wanted to do karaoke in the car. Spotify has synced lyrics, but they're buried in the app and not really made to be read from a phone mount. So I built a small app that listens for whatever song is playing, finds the timed lyrics and highlights each line as it's sung, with a big-text mode for the car.
 
-It works with Spotify, YouTube Music, Apple Music, Deezer, Tidal and basically any app that shows up in your media controls.
+On Android it works with Spotify (and some older players that announce what they're playing). On Windows it works with Spotify, browsers and basically any app that shows up in the media controls.
 
 ## What it does
 
 - Picks up the current song automatically. No searching, no login.
-- Highlights the line being sung and scrolls along with the song. Tap a line to jump there.
+- Highlights the line being sung and scrolls along with the song. On Windows you can click a line to jump there.
 - Switches to a big, high-contrast **Car view** on its own when the phone connects to Android Auto.
 - Can also show the lyrics on the car's own display (optional, see below).
 - Shows the album art and tints the background to match it. If the player doesn't give a cover, it looks one up online.
-- The progress bar is a row of equalizer bars that move with the music. Tap it to seek.
+- The progress bar is a row of equalizer bars that move with the music.
 - Hebrew (and other right-to-left) songs are laid out right to left.
 - If a song only has plain lyrics, it shows the full text and scrolls it with the song. If there are no lyrics at all, you get the album art, the song info and the bars.
 - **Later / Earlier** buttons if the timing is a bit off.
@@ -39,12 +39,11 @@ No accounts, no ads, and it never draws on top of other apps.
 
 ## Installing on Android
 
-1. Grab `LyricsMatch.apk` from the [Releases](../../releases) page on your phone and open it. Android will ask you to allow installing from your browser or file manager.
-2. Open LyricsMatch, tap **Allow access**, and switch LyricsMatch on in the screen that opens.
+1. Grab `LyricsMatch.apk` from the [Releases](../../releases) page on your phone and open it. Android will ask you to allow installing from your browser or file manager. Play Protect may warn you because it's not from the Play Store; tap **More details > Install anyway**.
+2. In Spotify, open **Settings** and turn on **Device broadcast status**. This lets Spotify tell other apps what's playing, and it's how LyricsMatch knows the song. You only do this once.
+3. Open LyricsMatch and play something. If a song was already playing when you opened the app, pause and play once so Spotify announces it.
 
-That's it, play something.
-
-If the switch in step 2 is greyed out, that's Android blocking the setting for apps that aren't from the Play Store. Go to **Settings > Apps > LyricsMatch > ⋮ (top right) > Allow restricted settings** and try again.
+The app doesn't need notification access or any other special permission to work, so Play Protect shouldn't block the install.
 
 **About the equalizer bar on Android:** the app will offer to make the bar react to the music. That needs audio access, which is why Android shows a "record audio" prompt. The sound is only analyzed on the phone and never recorded or sent anywhere. If you skip it (or your phone doesn't share audio from that app), the bars just do a beat-style animation instead.
 
@@ -86,11 +85,11 @@ The text scales with the window. Needs Windows 10 (2004) or Windows 11.
 - **Lyrics are ahead of the singer:** tap **Later** (each tap is 0.25 s). Behind? Tap **Earlier**.
 - **"No lyrics for this song":** the song just isn't in the lyrics database yet. The next song loads by itself, and if you were offline it retries on its own.
 - **Only plain text, no highlighting:** that song has lyrics but no timing yet.
-- **Nothing happens when music plays (Android):** check that notification access is still on.
+- **Nothing happens when music plays (Android):** make sure **Device broadcast status** is on in Spotify's settings, then pause and play once.
 
 ## Privacy
 
-- Android only lets an app see what's playing if it has notification access, which is why the app asks for it. It never reads your notifications.
+- On Android the app gets the song from Spotify's "Device broadcast status" announcements, so it needs no notification or accessibility access.
 - To find lyrics, the song's title, artist, album and length are sent to [LRCLIB](https://lrclib.net), and to [lyrics.ovh](https://lyrics.ovh) if LRCLIB doesn't have it.
 - If your player doesn't provide album art, the artist and title are sent to the [iTunes](https://www.apple.com/itunes/) search API to find the cover.
 - Audio for the equalizer is analyzed on the device and never recorded, saved or sent.
@@ -120,11 +119,11 @@ dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true 
 <details>
 <summary>How it's put together</summary>
 
-On Android, a notification listener service watches the active media session (that's how it sees any music app). Lyrics come from LRCLIB and get cached, the LRC parser works out the current line, and one shared state feeds both the phone UI (Jetpack Compose) and the optional Android Auto screen (Car App Library templates). Car view turns on through `CarConnection` when the phone is projecting.
+On Android, the app listens for Spotify's "Device broadcast status" broadcasts (and the older `metachanged` broadcasts some players send), which carry the song, its length and the play position. That needs no special permission, so Play Protect doesn't block the sideloaded APK. Lyrics come from LRCLIB and get cached, the LRC parser works out the current line, and one shared state feeds both the phone UI (Jetpack Compose) and the optional Android Auto screen (Car App Library templates). Car view turns on through `CarConnection` when the phone is projecting.
 
 | What | Where |
 | --- | --- |
-| Watching the current song | `app/.../media/MediaListenerService.kt` |
+| Watching the current song | `app/.../media/BroadcastSource.kt` |
 | Finding and caching lyrics | `app/.../lyrics/LyricsRepository.kt` |
 | Parsing LRC / current line | `app/.../lyrics/LrcParser.kt` |
 | Shared state (song, lyrics, line) | `app/.../lyrics/Karaoke.kt` |
@@ -135,11 +134,11 @@ The Android Auto screen keeps the template's title and row count the same betwee
 
 On Windows, the app reads the song from the system media sessions (the same thing the volume flyout uses) and does the same LRCLIB lookup and LRC parsing.
 
-To test on Android without a music app, debug builds include a fake player:
+To test on Android without Spotify, send the same broadcasts Spotify sends:
 
 ```bash
-adb shell cmd notification allow_listener com.lyricsmatch/com.lyricsmatch.media.MediaListenerService
-adb shell am broadcast -n com.lyricsmatch/.DemoPlayerReceiver --es title "Africa" --es artist "Toto" --el startMs 60000
+adb shell "am broadcast -a com.spotify.music.metadatachanged --es id demo1 --es artist Toto --es track Africa --ei length 295000"
+adb shell "am broadcast -a com.spotify.music.playbackstatechanged --ez playing true --ei playbackPosition 60000"
 ```
 
 </details>

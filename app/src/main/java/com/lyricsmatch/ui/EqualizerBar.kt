@@ -1,7 +1,6 @@
 package com.lyricsmatch.ui
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -16,7 +15,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.lyricsmatch.media.AudioSpectrum
 import com.lyricsmatch.media.NowPlaying
@@ -77,26 +75,17 @@ fun rememberLiveLevels(track: NowPlaying?, spectrum: AudioSpectrum?): LiveLevels
 
 /**
  * Song progress drawn as a row of equalizer bars: bright before the playhead, dim after.
- * Tap to seek.
  */
 @Composable
 fun EqualizerBar(
     track: NowPlaying,
     levels: LiveLevels,
-    onSeek: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Canvas(
         modifier
             .fillMaxWidth()
             .height(26.dp)
-            .pointerInput(track) {
-                detectTapGestures { pos ->
-                    if (track.durationMs > 0 && size.width > 0) {
-                        onSeek((pos.x / size.width * track.durationMs).toLong())
-                    }
-                }
-            }
     ) {
         levels.frame // redraw every frame
         val w = size.width

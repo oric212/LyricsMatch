@@ -61,8 +61,6 @@ object Karaoke {
         _offsetMs.value = (_offsetMs.value + deltaMs).coerceIn(-10_000, 10_000)
     }
 
-    fun seekTo(line: LyricLine) = MediaRepository.seekTo(line.timeMs - _offsetMs.value)
-
     private fun startLoad(np: NowPlaying?, forceRefresh: Boolean) {
         loadJob?.cancel()
         if (np == null) {

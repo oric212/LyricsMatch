@@ -95,13 +95,11 @@ private val Background = Color(0xFF0B0A10)
 
 @Composable
 fun App(
-    hasAccess: Boolean,
     carView: Boolean,
     autoCarView: Boolean,
     state: KaraokeState,
     artwork: Artwork?,
     offsetMs: Long,
-    onGrantAccess: () -> Unit,
     onToggleCarView: () -> Unit,
     equalizer: EqualizerOptions,
 ) {
@@ -129,7 +127,6 @@ fun App(
                 .systemBarsPadding()
         ) {
             when {
-                !hasAccess -> PermissionScreen(onGrantAccess)
                 carView -> CarScreen(state, artwork, showExit = !autoCarView, onExit = onToggleCarView)
                 else -> PhoneScreen(state, artwork, offsetMs, equalizer, onCarView = onToggleCarView)
             }
@@ -175,7 +172,6 @@ private fun PhoneScreen(
             EqualizerBar(
                 track,
                 levels,
-                onSeek = MediaRepository::seekTo,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
             )
         }
@@ -297,14 +293,20 @@ private fun LyricsBody(state: KaraokeState, large: Boolean, levels: LiveLevels? 
     }
     CompositionLocalProvider(LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
         when (val s = state.status) {
-            LyricsStatus.Idle -> Message("Play a song in Spotify or any music app", large)
+            LyricsStatus.Idle -> Message(
+            "Play a song in Spotify",
+            large,
+            "First time? In Spotify, open Settings and turn on \"Device broadcast status\". That's how LyricsMatch sees what's playing.
+
+Already playing? Pause and play once so Spotify announces the song.",
+        )
             LyricsStatus.Loading -> Message("Finding lyrics…", large)
             // No words to show: a live sound visual on the phone; car view stays calm text.
             LyricsStatus.Instrumental ->
-                if (levels != null) NoLyricsView(levels, artwork, state.track, "Instrumental · enjoy the music", MediaRepository::seekTo)
+                if (levels != null) NoLyricsView(levels, artwork, state.track, "Instrumental · enjoy the music")
                 else Message("♪  Instrumental  ♪", large)
             LyricsStatus.NotFound ->
-                if (levels != null) NoLyricsView(levels, artwork, state.track, "No lyrics for this song", MediaRepository::seekTo)
+                if (levels != null) NoLyricsView(levels, artwork, state.track, "No lyrics for this song")
                 else Message("No lyrics for this song yet", large, "They'll show up automatically for the next one")
             is LyricsStatus.Error -> Message(s.message, large, "Retrying automatically…")
             is LyricsStatus.Plain -> PlainLyrics(s.text, state.track, large)
@@ -335,9 +337,7 @@ private fun SyncedLyrics(lines: List<LyricLine>, current: Int) {
             // Intro marker: holds the reading position until the first line is sung.
             item(key = "intro") { IntroRow(active = current < 0) }
             itemsIndexed(lines) { i, line ->
-                LyricRow(line.text.ifBlank { "♪" }, active = i == current, past = i < current) {
-                    Karaoke.seekTo(line)
-                }
+                LyricRow(line.text.ifBlank { "♪" }, active = i == current, past = i < current, onClick = null)
             }
         }
     }
@@ -541,46 +541,6 @@ private fun CarLyrics(lines: List<LyricLine>, current: Int) {
                 }
             }
         }
-    }
-}
-
-// ---------------------------------------------------------------- onboarding
-
-@Composable
-private fun PermissionScreen(onGrant: () -> Unit) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text("LyricsMatch", fontSize = 34.sp, fontWeight = FontWeight.ExtraBold, color = Accent)
-        Spacer(Modifier.height(12.dp))
-        Text(
-            "Live lyrics for whatever you're playing — made for singing in the car.",
-            fontSize = 18.sp,
-            color = Color.White,
-        )
-        Spacer(Modifier.height(28.dp))
-        Text(
-            "To see which song is playing, Android requires \"Notification access\". " +
-                "LyricsMatch only reads the current song from your music app; it never reads your notifications.",
-            fontSize = 15.sp,
-            color = Dim,
-            lineHeight = 22.sp,
-        )
-        Spacer(Modifier.height(24.dp))
-        Button(
-            onClick = onGrant,
-            colors = ButtonDefaults.buttonColors(containerColor = Accent, contentColor = Color.Black),
-        ) { Text("Allow access", fontWeight = FontWeight.SemiBold) }
-        Spacer(Modifier.height(20.dp))
-        Text(
-            "Greyed out? Open Settings › Apps › LyricsMatch › ⋮ › \"Allow restricted settings\", then try again.",
-            fontSize = 13.sp,
-            color = Dim,
-            lineHeight = 19.sp,
-        )
     }
 }
 

@@ -1,10 +1,8 @@
 package com.lyricsmatch
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -21,13 +19,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lyricsmatch.lyrics.Karaoke
-import com.lyricsmatch.media.MediaListenerService
 import com.lyricsmatch.media.MediaRepository
 import com.lyricsmatch.ui.App
 
 class MainActivity : ComponentActivity() {
-
-    private var hasAccess by mutableStateOf(false)
 
     // Optional live equalizer (needs "record audio"; falls back to beat-style without it).
     private val spectrum = AudioSpectrum()
@@ -64,15 +59,11 @@ class MainActivity : ComponentActivity() {
             val inCar = connection == CarConnection.CONNECTION_TYPE_PROJECTION
 
             App(
-                hasAccess = hasAccess,
                 carView = inCar || manualCarView,
                 autoCarView = inCar,
                 state = state,
                 artwork = artwork?.takeIf { it.trackKey == state.track?.trackKey },
                 offsetMs = offset,
-                onGrantAccess = {
-                    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-                },
                 onToggleCarView = { manualCarView = !manualCarView },
                 equalizer = EqualizerOptions(
                     spectrum = spectrum.takeIf { micGranted },
@@ -86,7 +77,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        hasAccess = MediaListenerService.hasAccess(this)
         micGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
             PackageManager.PERMISSION_GRANTED
         if (micGranted) spectrum.start()
