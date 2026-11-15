@@ -4,14 +4,16 @@
 
 **Live, line-by-line lyrics for whatever you're playing, built for singing in the car.**
 
-Works with Spotify, YouTube Music, Apple Music, Deezer, Tidal and any other Android music app.
+For **Android** (with Android Auto) and **Windows**. Works with Spotify, YouTube Music, Apple Music, Deezer, Tidal and other music apps.
 
 </div>
 
 <p align="center">
-  <img src="docs/screenshots/phone.png" width="260" alt="Lyrics on the phone" />
-  &nbsp;&nbsp;
-  <img src="docs/screenshots/car-view.png" width="260" alt="Car view" />
+  <img src="docs/screenshots/phone.png" width="240" alt="Lyrics on the phone" />
+  &nbsp;
+  <img src="docs/screenshots/car-view.png" width="240" alt="Car view" />
+  &nbsp;
+  <img src="docs/screenshots/windows.png" width="300" alt="LyricsMatch on Windows" />
 </p>
 
 ---
@@ -27,7 +29,7 @@ Works with Spotify, YouTube Music, Apple Music, Deezer, Tidal and any other Andr
 - 💾 **Saves lyrics you've already played**, so replays load instantly, even with a weak signal.
 - 🧘 **Keeps things simple:** no accounts, no ads, no pop-ups on top of other apps.
 
-## 📲 Install
+## 📲 Install on Android
 
 1. Download the latest `LyricsMatch.apk` from the [**Releases**](../../releases) page on your phone.
 2. Open it and allow installing from your browser or file manager when Android asks.
@@ -61,6 +63,20 @@ The car display only shows apps that Android Auto trusts. Because LyricsMatch is
 
 On the car display, lyrics use Android Auto's own templates. The car decides how much text it shows while you're moving, which keeps it within the driving safety rules.
 
+## 💻 On Windows
+
+1. Download `LyricsMatch-Windows.exe` from the [**Releases**](../../releases) page. There's no installer, so you can put it anywhere and double-click it.
+2. Windows may show *"Windows protected your PC"* because the app isn't signed. Click **More info › Run anyway**.
+3. Play something in Spotify (desktop app or web player) or any other music app. The lyrics follow along automatically.
+
+| Shortcut | What it does |
+| --- | --- |
+| **F11** | Full screen: big lyrics for karaoke on a TV or second screen |
+| **← / →** | Make lyrics later / earlier |
+| **Click a line** | Jump to that part of the song (if your music app allows it) |
+
+The text gets bigger as you make the window bigger. Requires Windows 10 (version 2004) or Windows 11.
+
 ## 🎚️ Tips
 
 | If… | Do this |
@@ -69,11 +85,11 @@ On the car display, lyrics use Android Auto's own templates. The car decides how
 | Lyrics are **behind** the singer | Tap **Earlier** |
 | It says *"No lyrics found"* | Some songs aren't in the lyrics library yet. Tap **Try again** if you were offline |
 | Only the full text shows, with no highlighting | That song has no timed lyrics yet, so the plain text is shown instead |
-| Nothing happens when music plays | Check that notification access is still on (step 3 of Install) |
+| Nothing happens when music plays (Android) | Check that notification access is still on (step 3 of Install) |
 
 ## 🔒 Privacy
 
-- LyricsMatch asks for **notification access** only because Android requires it before an app can see which song is playing. It **never reads your notifications**.
+- On Android, LyricsMatch asks for **notification access** only because Android requires it before an app can see which song is playing. It **never reads your notifications**.
 - The only data sent anywhere is the **song title, artist, album and length**, sent to [LRCLIB](https://lrclib.net) to look up lyrics.
 - There are no accounts, analytics or ads.
 
@@ -90,7 +106,7 @@ Keep your eyes on the road. LyricsMatch is meant for **passengers and quick glan
 <details>
 <summary><b>🛠️ For developers</b></summary>
 
-### Build
+### Build (Android)
 
 Requirements: JDK 17 and the Android SDK (platform 35). Android Studio includes both.
 
@@ -112,7 +128,17 @@ Requirements: JDK 17 and the Android SDK (platform 35). Android Studio includes 
 
 Car view turns on automatically through `CarConnection` when the phone is projecting to Android Auto. The car-display screen keeps the template's title and row count fixed, so each line change counts as a *refresh* and stays within Android Auto's template limits.
 
-### Demo without a music app (debug builds)
+### Windows app
+
+C# / WPF on .NET 10, in [`windows/`](windows). It reads the song from Windows' system media sessions (the same source as the volume pop-up) and uses the same LRCLIB lookup and LRC parsing as the Android app.
+
+```bash
+cd windows/LyricsMatch.Windows
+dotnet run                                   # run it
+dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true -o ../publish
+```
+
+### Demo without a music app (Android debug builds)
 
 ```bash
 adb shell cmd notification allow_listener com.lyricsmatch/com.lyricsmatch.media.MediaListenerService

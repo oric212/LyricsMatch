@@ -5,3 +5,9 @@ local.properties
 .idea/
 *.iml
 captures/
+
+# Windows app
+windows/**/bin/
+windows/**/obj/
+windows/publish/
+lyrics-cache/
