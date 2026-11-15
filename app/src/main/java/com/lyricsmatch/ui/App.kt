@@ -294,12 +294,12 @@ private fun LyricsBody(state: KaraokeState, large: Boolean, levels: LiveLevels? 
     CompositionLocalProvider(LocalLayoutDirection provides if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
         when (val s = state.status) {
             LyricsStatus.Idle -> Message(
-            "Play a song in Spotify",
-            large,
-            "First time? In Spotify, open Settings and turn on \"Device broadcast status\". That's how LyricsMatch sees what's playing.
-
-Already playing? Pause and play once so Spotify announces the song.",
-        )
+                "Play a song in Spotify",
+                large,
+                "First time? In Spotify, open Settings and turn on \"Device broadcast status\". " +
+                    "That's how LyricsMatch sees what's playing.\n\n" +
+                    "Already playing? Pause and play once so Spotify announces the song.",
+            )
             LyricsStatus.Loading -> Message("Finding lyrics…", large)
             // No words to show: a live sound visual on the phone; car view stays calm text.
             LyricsStatus.Instrumental ->
