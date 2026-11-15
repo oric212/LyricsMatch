@@ -1,4 +1,6 @@
+using System.IO;
 using Windows.Media.Control;
+using Windows.Storage.Streams;
 
 namespace LyricsMatch.Windows.Core;
 
@@ -18,12 +20,35 @@ public sealed class MediaWatcher
     public event Action<NowPlaying?>? Changed;
     public NowPlaying? Current { get; private set; }
 
+    private Timer? _poll;
+    private byte[]? _art;
+
+    private static async Task<byte[]?> ReadThumbnailAsync(IRandomAccessStreamReference? thumb)
+    {
+        if (thumb == null) return null;
+        try
+        {
+            using var winStream = await thumb.OpenReadAsync();
+            using var stream = winStream.AsStreamForRead();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            return ms.Length > 0 ? ms.ToArray() : null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
     public async Task StartAsync()
     {
         _manager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
         _manager.SessionsChanged += (_, _) => Resubscribe();
         _manager.CurrentSessionChanged += (_, _) => Pick();
         Resubscribe();
+        // Safety net: some players occasionally skip change events, so re-check every second.
+        // Unchanged snapshots compare equal and are ignored by the UI.
+        _poll = new Timer(_ => Pick(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
     }
 
     public async Task SeekAsync(TimeSpan position)
@@ -107,6 +132,9 @@ public sealed class MediaWatcher
                         var updated = timeline.LastUpdatedTime;
                         // Some apps leave this unset; treat the report as "just now".
                         if (updated.Year < 2000 || updated > DateTimeOffset.Now) updated = DateTimeOffset.Now;
+                        // Re-read the art each time: players can update it a moment after the title.
+                        var art = await ReadThumbnailAsync(props.Thumbnail);
+                        if (art == null || _art == null || !art.AsSpan().SequenceEqual(_art)) _art = art;
                         np = new NowPlaying(
                             s.SourceAppUserModelId,
                             props.Title,
@@ -115,7 +143,8 @@ public sealed class MediaWatcher
                             timeline.EndTime - timeline.StartTime,
                             playback.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing,
                             timeline.Position,
-                            updated);
+                            updated,
+                            _art);
                     }
                 }
                 catch (Exception)

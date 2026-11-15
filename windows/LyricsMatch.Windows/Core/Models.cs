@@ -9,7 +9,9 @@ public sealed record NowPlaying(
     TimeSpan Duration,
     bool IsPlaying,
     TimeSpan Position,
-    DateTimeOffset UpdatedAt)
+    DateTimeOffset UpdatedAt,
+    /// <summary>Album art image bytes from the player (same instance while unchanged).</summary>
+    byte[]? Artwork = null)
 {
     public string TrackKey => Artist + "\0" + Title;
 

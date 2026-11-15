@@ -56,7 +56,7 @@ class LyricsScreen(carContext: CarContext) : Screen(carContext) {
             }
             is LyricsStatus.Plain -> listOf("Synced lyrics unavailable", "See full text on your phone", BLANK, songLine)
             LyricsStatus.Instrumental -> listOf("♪ Instrumental ♪", BLANK, BLANK, songLine)
-            LyricsStatus.NotFound -> listOf("No lyrics found", BLANK, BLANK, songLine)
+            LyricsStatus.NotFound -> listOf("No lyrics for this song yet", BLANK, BLANK, songLine)
             is LyricsStatus.Error -> listOf(s.message, BLANK, BLANK, songLine)
             LyricsStatus.Loading -> listOf("Finding lyrics…", BLANK, BLANK, songLine)
             LyricsStatus.Idle -> listOf("Play a song in your music app", BLANK, BLANK, songLine)

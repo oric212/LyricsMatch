@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🎤 LyricsMatch
+<img src="docs/icon.png" width="112" alt="LyricsMatch icon" />
+
+# LyricsMatch
 
 **Live, line-by-line lyrics for whatever you're playing, built for singing in the car.**
 
@@ -21,6 +23,11 @@ For **Android** (with Android Auto) and **Windows**. Works with Spotify, YouTube
 ## ✨ What it does
 
 - 🎵 **Detects the current song automatically.** Press play in your music app and the lyrics show up. You don't need to search or log in.
+- 🎨 **Matches the music:** shows the album art (if your player has none, it finds the cover online) and tints the background to the cover's color.
+- 🇮🇱 **Hebrew and Arabic support:** right-to-left songs are laid out right-to-left automatically.
+- 📊 **Equalizer progress bar:** the song's progress bar is a row of bars that move with the music. Tap anywhere on it to jump to that point.
+- 📜 **Plain lyrics as a fallback:** for songs without timed lyrics, the full text scrolls along with the song.
+- 🎶 **No lyrics? Still something to watch:** the album art, the song info and a live spectrum of the music.
 - ⏱️ **Highlights each line as it's sung**, karaoke style, and scrolls along with the music.
 - 🚗 **Switches to Car view by itself** when your phone connects to Android Auto: big, high-contrast text with only the current line and the next two.
 - 📺 **Can also show lyrics on the car's display** (optional, see below).
@@ -39,6 +46,8 @@ For **Android** (with Android Auto) and **Windows**. Works with Spotify, YouTube
 > **Settings › Apps › LyricsMatch › ⋮ (top right) › Allow restricted settings**, then try again.
 
 That's it. Play a song and sing along. 🎤
+
+> **Optional: equalizer that follows the music.** LyricsMatch may offer *"Make the bar react to the music?"*. If you tap **Allow**, Android asks for audio access so the bars can follow the real sound. Sound is analyzed on your phone only and is never recorded or sent anywhere. If you skip it, the bars use a beat-style animation instead. Some phones don't share audio from certain apps; the beat-style animation is used then too.
 
 ## 🚗 Using it in the car
 
@@ -73,9 +82,9 @@ On the car display, lyrics use Android Auto's own templates. The car decides how
 | --- | --- |
 | **F11** | Full screen: big lyrics for karaoke on a TV or second screen |
 | **← / →** | Make lyrics later / earlier |
-| **Click a line** | Jump to that part of the song (if your music app allows it) |
+| **Click a line** or **the equalizer bar** | Jump to that part of the song (if your music app allows it) |
 
-The text gets bigger as you make the window bigger. Requires Windows 10 (version 2004) or Windows 11.
+The text gets bigger as you make the window bigger. The equalizer bar follows whatever your PC is playing; the audio is only analyzed on your PC and never recorded. Requires Windows 10 (version 2004) or Windows 11.
 
 ## 🎚️ Tips
 
@@ -83,19 +92,21 @@ The text gets bigger as you make the window bigger. Requires Windows 10 (version
 | --- | --- |
 | Lyrics are **ahead** of the singer | Tap **Later** at the bottom (each tap is 0.25 s) |
 | Lyrics are **behind** the singer | Tap **Earlier** |
-| It says *"No lyrics found"* | Some songs aren't in the lyrics library yet. Tap **Try again** if you were offline |
+| It says *"No lyrics for this song yet"* | That song isn't in the lyrics library yet. Just keep listening: the next song loads by itself. If you were offline, it retries automatically |
 | Only the full text shows, with no highlighting | That song has no timed lyrics yet, so the plain text is shown instead |
 | Nothing happens when music plays (Android) | Check that notification access is still on (step 3 of Install) |
 
 ## 🔒 Privacy
 
 - On Android, LyricsMatch asks for **notification access** only because Android requires it before an app can see which song is playing. It **never reads your notifications**.
-- The only data sent anywhere is the **song title, artist, album and length**, sent to [LRCLIB](https://lrclib.net) to look up lyrics.
+- The only data sent anywhere is the **song title, artist, album and length**, sent to [LRCLIB](https://lrclib.net) (and to [lyrics.ovh](https://lyrics.ovh) if LRCLIB has nothing) to look up lyrics.
+- Album art comes from your music app. Only when it has none is the cover looked up on [iTunes](https://www.apple.com/itunes/) (artist and title only).
+- The equalizer analyzes sound on your device only (on Android, only if you opt in). Audio is never recorded, saved or sent.
 - There are no accounts, analytics or ads.
 
 ## 🙏 Credits
 
-Lyrics are provided by **[LRCLIB](https://lrclib.net)**, a free, community-built lyrics library. If a song is missing or out of sync, you can contribute it there.
+Synced lyrics come from **[LRCLIB](https://lrclib.net)**, a free, community-built lyrics library. If a song is missing or out of sync, you can contribute it there. When LRCLIB doesn't have a song, plain lyrics come from **[lyrics.ovh](https://lyrics.ovh)**.
 
 ## ⚠️ Drive safely
 

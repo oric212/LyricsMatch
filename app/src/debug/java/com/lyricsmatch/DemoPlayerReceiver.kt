@@ -3,6 +3,12 @@ package com.lyricsmatch
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Shader
 import android.media.MediaMetadata
 import android.media.session.MediaSession
 import android.media.session.PlaybackState
@@ -32,14 +38,16 @@ class DemoPlayerReceiver : BroadcastReceiver() {
                 )
             }
         })
-        s.setMetadata(
-            MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_TITLE, intent.getStringExtra("title") ?: "Demo")
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, intent.getStringExtra("artist") ?: "")
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, intent.getStringExtra("album"))
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, intent.getLongExtra("durationMs", 0))
-                .build()
-        )
+        val meta = MediaMetadata.Builder()
+            .putString(MediaMetadata.METADATA_KEY_TITLE, intent.getStringExtra("title") ?: "Demo")
+            .putString(MediaMetadata.METADATA_KEY_ARTIST, intent.getStringExtra("artist") ?: "")
+            .putString(MediaMetadata.METADATA_KEY_ALBUM, intent.getStringExtra("album"))
+            .putLong(MediaMetadata.METADATA_KEY_DURATION, intent.getLongExtra("durationMs", 0))
+        // --ez noArt true simulates a player without album art (tests the online cover lookup).
+        if (!intent.getBooleanExtra("noArt", false)) {
+            meta.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, demoCover(intent.getStringExtra("title") ?: ""))
+        }
+        s.setMetadata(meta.build())
         s.setPlaybackState(
             playing.setState(
                 PlaybackState.STATE_PLAYING,
@@ -50,6 +58,18 @@ class DemoPlayerReceiver : BroadcastReceiver() {
         )
         s.isActive = true
         session = s
+    }
+
+    /** Generated stand-in album cover (a warm gradient), so demos show artwork and tint. */
+    private fun demoCover(seed: String): Bitmap {
+        val bmp = Bitmap.createBitmap(300, 300, Bitmap.Config.ARGB_8888)
+        val hue = (seed.hashCode() and 0x7fffffff) % 360f
+        val c1 = Color.HSVToColor(floatArrayOf(hue, 0.75f, 0.95f))
+        val c2 = Color.HSVToColor(floatArrayOf((hue + 40) % 360, 0.85f, 0.45f))
+        Canvas(bmp).drawPaint(Paint().apply {
+            shader = LinearGradient(0f, 0f, 300f, 300f, c1, c2, Shader.TileMode.CLAMP)
+        })
+        return bmp
     }
 
     companion object {

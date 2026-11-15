@@ -102,7 +102,43 @@ public sealed class LyricsClient
             }
         }
 
-        return Pick(candidates, durationSec);
+        // 3) Free-text search catches oddly formatted artist names.
+        if (!candidates.Any(HasSynced))
+        {
+            var arr = await GetAsync("search", ct, ("q", $"{CleanTitle(np.Title)} {primary}"));
+            if (arr is { ValueKind: JsonValueKind.Array } a) candidates.AddRange(a.EnumerateArray());
+        }
+
+        var picked = Pick(candidates, durationSec);
+        if (picked.Item1.Kind != LyricsKind.NotFound) return picked;
+
+        // 4) Second source: lyrics.ovh (plain text only, no timing).
+        var plain = await LyricsOvhAsync(primary, CleanTitle(np.Title), ct);
+        return plain != null ? (new LyricsResult(LyricsKind.Plain, Text: plain), "P\n" + plain) : picked;
+    }
+
+    /// <summary>Plain lyrics from https://lyrics.ovh, or null. Failures here never hide the LRCLIB result.</summary>
+    private static async Task<string?> LyricsOvhAsync(string artist, string title, CancellationToken ct)
+    {
+        try
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            timeout.CancelAfter(TimeSpan.FromSeconds(8));
+            using var resp = await Http.GetAsync(
+                $"https://api.lyrics.ovh/v1/{Uri.EscapeDataString(artist)}/{Uri.EscapeDataString(title)}", timeout.Token);
+            if (!resp.IsSuccessStatusCode) return null;
+            using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync(timeout.Token));
+            var text = Str(doc.RootElement, "lyrics");
+            if (text == null) return null;
+            var lines = text.Replace("\r", "").Split('\n')
+                .SkipWhile(l => l.StartsWith("Paroles de la chanson", StringComparison.OrdinalIgnoreCase));
+            var cleaned = Regex.Replace(string.Join("\n", lines), @"\n{3,}", "\n\n").Trim();
+            return cleaned.Length > 0 ? cleaned : null;
+        }
+        catch (Exception) when (!ct.IsCancellationRequested)
+        {
+            return null;
+        }
     }
 
     private static (LyricsResult, string?) Pick(List<JsonElement> candidates, long durationSec)

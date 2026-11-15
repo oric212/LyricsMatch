@@ -57,8 +57,6 @@ object Karaoke {
         }
     }
 
-    fun retry() = startLoad(MediaRepository.nowPlaying.value, forceRefresh = true)
-
     fun nudgeOffset(deltaMs: Long) {
         _offsetMs.value = (_offsetMs.value + deltaMs).coerceIn(-10_000, 10_000)
     }
@@ -75,7 +73,14 @@ object Karaoke {
         lyrics.value = key to LyricsStatus.Loading
         loadJob = scope.launch {
             if (forceRefresh) LyricsRepository.forget(app, np)
-            lyrics.value = key to LyricsRepository.load(app, np)
+            // Network trouble: keep retrying quietly while the same song plays.
+            while (true) {
+                val result = LyricsRepository.load(app, np)
+                lyrics.value = key to result
+                if (result !is LyricsStatus.Error) break
+                delay(8_000)
+                LyricsRepository.forget(app, np)
+            }
         }
     }
 

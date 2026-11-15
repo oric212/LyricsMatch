@@ -1,6 +1,7 @@
 package com.lyricsmatch.lyrics
 
 import android.content.Context
+import android.net.Uri
 import com.lyricsmatch.media.NowPlaying
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -83,7 +84,43 @@ object LyricsRepository {
             }
         }
 
-        return pick(candidates, durationSec)
+        // 3) Free-text search catches oddly formatted artist names.
+        if (candidates.none { it.optString("syncedLyrics").isNotBlank() }) {
+            val arr = getJson("/search", mapOf("q" to "${cleanTitle(np.title)} $primaryArtist"))
+            if (arr is JSONArray) for (i in 0 until arr.length()) candidates += arr.getJSONObject(i)
+        }
+
+        val picked = pick(candidates, durationSec)
+        if (picked.first != LyricsStatus.NotFound) return picked
+
+        // 4) Second source: lyrics.ovh (plain text only, no timing).
+        return lyricsOvh(primaryArtist, cleanTitle(np.title))
+            ?.let { LyricsStatus.Plain(it) to "P\n$it" }
+            ?: picked
+    }
+
+    /** Plain lyrics from https://lyrics.ovh, or null. Failures here never hide the LRCLIB result. */
+    private fun lyricsOvh(artist: String, title: String): String? = try {
+        val url = URL("https://api.lyrics.ovh/v1/${Uri.encode(artist)}/${Uri.encode(title)}")
+        val conn = url.openConnection() as HttpURLConnection
+        try {
+            conn.connectTimeout = 6_000
+            conn.readTimeout = 8_000
+            conn.setRequestProperty("User-Agent", USER_AGENT)
+            if (conn.responseCode != 200) null
+            else JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+                .optString("lyrics")
+                .lineSequence()
+                .dropWhile { it.startsWith("Paroles de la chanson", ignoreCase = true) }
+                .joinToString("\n")
+                .replace(Regex("\n{3,}"), "\n\n")
+                .trim()
+                .takeIf { it.isNotBlank() }
+        } finally {
+            conn.disconnect()
+        }
+    } catch (_: Exception) {
+        null
     }
 
     private fun pick(candidates: List<JSONObject>, durationSec: Long): Pair<LyricsStatus, String?> {
