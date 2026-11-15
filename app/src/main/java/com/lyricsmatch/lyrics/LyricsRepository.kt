@@ -71,7 +71,7 @@ object LyricsRepository {
         }
 
         // 2) Fuzzy search, with progressively cleaned titles/artists.
-        if (candidates.none { it.optString("syncedLyrics").isNotBlank() }) {
+        if (candidates.none { it.text("syncedLyrics") != null }) {
             val tries = linkedSetOf(
                 np.title to np.artist,
                 np.title to primaryArtist,
@@ -80,12 +80,12 @@ object LyricsRepository {
             for ((title, artist) in tries) {
                 val arr = getJson("/search", mapOf("track_name" to title, "artist_name" to artist))
                 if (arr is JSONArray) for (i in 0 until arr.length()) candidates += arr.getJSONObject(i)
-                if (candidates.any { it.optString("syncedLyrics").isNotBlank() }) break
+                if (candidates.any { it.text("syncedLyrics") != null }) break
             }
         }
 
         // 3) Free-text search catches oddly formatted artist names.
-        if (candidates.none { it.optString("syncedLyrics").isNotBlank() }) {
+        if (candidates.none { it.text("syncedLyrics") != null }) {
             val arr = getJson("/search", mapOf("q" to "${cleanTitle(np.title)} $primaryArtist"))
             if (arr is JSONArray) for (i in 0 until arr.length()) candidates += arr.getJSONObject(i)
         }
@@ -109,7 +109,7 @@ object LyricsRepository {
             conn.setRequestProperty("User-Agent", USER_AGENT)
             if (conn.responseCode != 200) null
             else JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
-                .optString("lyrics")
+                .text("lyrics").orEmpty()
                 .lineSequence()
                 .dropWhile { it.startsWith("Paroles de la chanson", ignoreCase = true) }
                 .joinToString("\n")
@@ -131,13 +131,13 @@ object LyricsRepository {
         } else candidates
 
         fitting.firstNotNullOfOrNull { c ->
-            c.optString("syncedLyrics").takeIf { it.isNotBlank() && it != "null" }
+            c.text("syncedLyrics")
         }?.let { lrc ->
             val lines = LrcParser.parse(lrc)
             if (lines.isNotEmpty()) return LyricsStatus.Synced(lines) to "S\n$lrc"
         }
         fitting.firstNotNullOfOrNull { c ->
-            c.optString("plainLyrics").takeIf { it.isNotBlank() && it != "null" }
+            c.text("plainLyrics")
         }?.let { return LyricsStatus.Plain(it) to "P\n$it" }
         if (fitting.any { it.optBoolean("instrumental") }) return LyricsStatus.Instrumental to "I\n"
         return LyricsStatus.NotFound to null
@@ -175,8 +175,17 @@ object LyricsRepository {
             .replace(Regex("""\s+-\s+.*(remaster|version|edit|live|mix).*$""", RegexOption.IGNORE_CASE), "")
             .trim()
 
+    /**
+     * A JSON string field, or null when it's missing, JSON null or blank.
+     * (org.json's optString turns JSON null into the text "null", which once made the app
+     * think plain-only results had synced lyrics.)
+     */
+    private fun JSONObject.text(name: String): String? =
+        if (isNull(name)) null else optString(name).takeIf { it.isNotBlank() }
+
     private fun cacheFile(context: Context, key: String) =
-        File(context.filesDir, "lyrics/${key.hashCode().toUInt()}_${key.length}.txt")
+        // "v2": earlier builds could save plain text for songs that have synced lyrics.
+        File(context.filesDir, "lyrics-v2/${key.hashCode().toUInt()}_${key.length}.txt")
 
     private fun readCache(file: File): LyricsStatus? {
         if (!file.exists()) return null

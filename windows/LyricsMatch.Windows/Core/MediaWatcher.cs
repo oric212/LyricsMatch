@@ -16,6 +16,7 @@ public sealed class MediaWatcher
     private GlobalSystemMediaTransportControlsSession? _session;
     private string? _sessionId;
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private readonly Dictionary<string, DateTime> _playingSince = new();
 
     public event Action<NowPlaying?>? Changed;
     public NowPlaying? Current { get; private set; }
@@ -102,11 +103,33 @@ public sealed class MediaWatcher
         static bool IsSpotify(GlobalSystemMediaTransportControlsSession s) =>
             s.SourceAppUserModelId.Contains("spotify", StringComparison.OrdinalIgnoreCase);
 
+        // Track how long each app has been playing, so brief muted previews and video ads
+        // in a browser don't steal the window.
+        var now = DateTime.UtcNow;
+        lock (_playingSince)
+        {
+            var present = sessions.Select(s => s.SourceAppUserModelId).ToHashSet();
+            foreach (var gone in _playingSince.Keys.Where(k => !present.Contains(k)).ToList()) _playingSince.Remove(gone);
+            foreach (var s in sessions)
+            {
+                if (Playing(s)) _playingSince.TryAdd(s.SourceAppUserModelId, now);
+                else _playingSince.Remove(s.SourceAppUserModelId);
+            }
+        }
+        bool SteadilyPlaying(GlobalSystemMediaTransportControlsSession s)
+        {
+            lock (_playingSince)
+                return _playingSince.TryGetValue(s.SourceAppUserModelId, out var since) && now - since >= TimeSpan.FromSeconds(3);
+        }
+
+        var current = sessions.FirstOrDefault(s => s.SourceAppUserModelId == _sessionId);
+        // Spotify playing > the app we already follow, if playing > another app playing for 3s+
+        // > the app we already follow (paused) > Spotify (paused). Never a random tab.
         var chosen = sessions.FirstOrDefault(s => Playing(s) && IsSpotify(s))
-                     ?? sessions.FirstOrDefault(Playing)
-                     ?? sessions.FirstOrDefault(s => s.SourceAppUserModelId == _sessionId)
-                     ?? _manager.GetCurrentSession()
-                     ?? sessions.FirstOrDefault();
+                     ?? (current != null && Playing(current) ? current : null)
+                     ?? sessions.FirstOrDefault(SteadilyPlaying)
+                     ?? current
+                     ?? sessions.FirstOrDefault(IsSpotify);
 
         _session = chosen;
         _sessionId = chosen?.SourceAppUserModelId;

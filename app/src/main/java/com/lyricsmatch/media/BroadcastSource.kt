@@ -62,8 +62,9 @@ object BroadcastSource {
     private fun onSpotify(action: String, i: Intent) {
         pkg = SPOTIFY
         // Spotify stamps each broadcast with wall-clock time; convert to the elapsed-time clock.
-        val sent = i.getLongExtra("timeSent", System.currentTimeMillis())
-        val at = SystemClock.elapsedRealtime() - (System.currentTimeMillis() - sent).coerceAtLeast(0)
+        // A clearly wrong stamp (in the future or over a minute old) is treated as "just now".
+        val age = System.currentTimeMillis() - i.getLongExtra("timeSent", System.currentTimeMillis())
+        val at = SystemClock.elapsedRealtime() - (if (age in 0..60_000) age else 0)
         if (action.endsWith("metadatachanged")) {
             val newId = i.getStringExtra("id") ?: (i.getStringExtra("artist") + i.getStringExtra("track"))
             if (newId != id) {
