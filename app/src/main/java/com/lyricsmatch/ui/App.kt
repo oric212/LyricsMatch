@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import com.lyricsmatch.BuildConfig
 import com.lyricsmatch.media.Artwork
 import com.lyricsmatch.lyrics.Bidi
 import androidx.compose.runtime.CompositionLocalProvider
@@ -299,6 +300,7 @@ private fun LyricsBody(state: KaraokeState, large: Boolean, levels: LiveLevels? 
                 "First time? In Spotify, tap your profile picture > Settings and privacy > Playback, " +
                     "and turn on \"Device broadcast status\". That's how LyricsMatch sees what's playing.\n\n" +
                     "Already playing? Pause and play once so Spotify announces the song.",
+                showVersion = true,
             )
             LyricsStatus.Loading -> Message("Finding lyrics…", large)
             // No words to show: a live sound visual on the phone; car view stays calm text.
@@ -454,7 +456,7 @@ private fun PlainLyrics(text: String, track: NowPlaying?, large: Boolean) {
 }
 
 @Composable
-private fun Message(text: String, large: Boolean, hint: String? = null) {
+private fun Message(text: String, large: Boolean, hint: String? = null, showVersion: Boolean = false) {
     Column(
         Modifier
             .fillMaxSize()
@@ -476,6 +478,10 @@ private fun Message(text: String, large: Boolean, hint: String? = null) {
                 fontSize = if (large) 18.sp else 14.sp,
                 textAlign = TextAlign.Center,
             )
+        }
+        if (showVersion) {
+            Spacer(Modifier.height(24.dp))
+            Text("Version ${BuildConfig.VERSION_NAME}", color = Dim.copy(alpha = 0.45f), fontSize = 12.sp)
         }
     }
 }

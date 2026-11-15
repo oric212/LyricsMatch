@@ -14,8 +14,8 @@ android {
         applicationId = "com.lyricsmatch"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "1.0.5"
     }
 
     // Release signing key lives outside the repo; its details are in keystore.properties
@@ -50,6 +50,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
