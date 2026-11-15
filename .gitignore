@@ -11,3 +11,7 @@ windows/**/bin/
 windows/**/obj/
 windows/publish/
 lyrics-cache/
+
+# Release signing (never commit)
+keystore.properties
+*.jks
